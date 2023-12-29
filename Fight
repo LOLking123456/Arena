@@ -1,0 +1,399 @@
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+
+local Window = Library.CreateLib("Gunfight Arena | Legend HandlesYT", "BloodTheme")
+
+local Tab = Window:NewTab("Main-Features")
+
+
+
+
+local Tab1 = Window:NewTab("Settings")
+
+local Section = Tab:NewSection("Main-Features")
+
+
+
+
+local CredSection = Tab1:NewSection("Settings")
+
+Section:NewButton("Enable Player Hitbox (Medium)", "Enable Player Hitbox", function()
+-- Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+
+-- Constants
+local camera = workspace.CurrentCamera
+local player = Players.LocalPlayer
+local playerCharacter = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = playerCharacter:WaitForChild("HumanoidRootPart")
+
+-- UI Setup
+local gui = Instance.new("ScreenGui")
+gui.Name = "LockOnUI"
+gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local indicator = Instance.new("TextLabel")
+indicator.Name = "LockOnIndicator"
+indicator.Size = UDim2.new(0, 200, 0, 50)
+indicator.Position = UDim2.new(0.5, -100, 0, 20)
+indicator.BackgroundTransparency = 1
+indicator.TextStrokeTransparency = 0.5
+indicator.TextSize = 20
+indicator.Font = Enum.Font.SourceSansBold
+indicator.TextColor3 = Color3.new(1, 1, 1)
+indicator.BorderSizePixel = 2
+indicator.Parent = gui
+
+-- Function to update the lock-on indicator
+local function updateIndicator(targetPosition, screenPosition, distance)
+    indicator.Text = string.format("Target Distance: %.2f studs", distance)
+end
+
+-- Function to find the nearest player
+local function findNearestPlayer()
+    local closestPlayer = nil
+    local closestDistance = math.huge
+
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            local character = otherPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local rootPart = character.HumanoidRootPart
+                local distance = (rootPart.Position - camera.CFrame.Position).Magnitude
+
+                if distance < closestDistance then
+                    closestPlayer = otherPlayer
+                    closestDistance = distance
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+-- Function to handle player input
+local function handleInput()
+    UserInputService.InputChanged:Connect(function(input, processed)
+        if not processed and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local nearestPlayer = findNearestPlayer()
+
+            if nearestPlayer then
+                local targetPosition = nearestPlayer.Character:WaitForChild("HumanoidRootPart").Position
+                local screenPosition, onScreen = camera:WorldToViewportPoint(targetPosition)
+
+                if onScreen then
+                    local distance = (targetPosition - camera.CFrame.Position).Magnitude
+                    updateIndicator(targetPosition, screenPosition, distance)
+                else
+                    indicator.Text = "Target Out of View"
+                end
+            else
+                indicator.Text = "No Target Found"
+            end
+        end
+    end)
+end
+
+-- Run the script
+handleInput()
+end)
+
+Section:NewToggle("Enable Player Hitbox (Medium)", "Enable Player Hitbox", function(Value)
+a = Value
+        while a do task.wait(2)
+        pcall(function()
+for _, v in pairs(game.Workspace:GetDescendants()) do
+    if v.Name == "HumanoidRootPart" and v:IsA("Part") and v.Parent ~= game.Players.LocalPlayer.Character then
+        v.Size = Vector3.new(15, 15, 15)
+        v.Transparency = 0.8
+        v.Material = "Neon"
+        v.BrickColor = BrickColor.new("Really red")
+        v.CanCollide = false
+    end
+end
+end)
+end
+    end)
+
+
+Section:NewToggle("Enable Player Hitbox (Big)", "Enable Player Hitbox", function(Value)
+a = Value
+        while a do task.wait(2)
+        pcall(function()
+for _, v in pairs(game.Workspace:GetDescendants()) do
+    if v.Name == "HumanoidRootPart" and v:IsA("Part") and v.Parent ~= game.Players.LocalPlayer.Character then
+        v.Size = Vector3.new(25, 25, 25)
+        v.Transparency = 0.8
+        v.Material = "Neon"
+        v.BrickColor = BrickColor.new("Really red")
+        v.CanCollide = false
+    end
+end
+end)
+end
+    end)
+
+Section:NewToggle("Player ESP", "Player ESP", function(state)
+if state then
+getgenv().enabled = true --Toggle on/off
+getgenv().filluseteamcolor = false --Toggle fill color using player team color on/off
+getgenv().outlineuseteamcolor = false --Toggle outline color using player team color on/off
+getgenv().fillcolor = Color3.new(2, 2, 1) --Change fill color, no need to edit if using team color
+getgenv().outlinecolor = Color3.new(1, 1, 1) --Change outline color, no need to edit if using team color
+getgenv().filltrans = 0.3 --Change fill transparency
+getgenv().outlinetrans = 0.2 --Change outline transparency
+
+local holder = game.CoreGui:FindFirstChild("ESPHolder") or Instance.new("Folder")
+if enabled == false then
+    holder:Destroy()
+end
+
+if holder.Name == "Folder" then
+    holder.Name = "ESPHolder"
+    holder.Parent = game.CoreGui
+end
+
+if uselocalplayer == false and holder:FindFirstChild(game.Players.LocalPlayer.Name) then
+    holder:FindFirstChild(game.Players.LocalPlayer.Name):Destroy()
+end
+
+if getgenv().enabled == true then 
+    getgenv().enabled = false
+    getgenv().enabled = true
+end
+while getgenv().enabled do
+    task.wait()
+    for _,v in pairs(game.Players:GetChildren()) do
+        local chr = v.Character
+        if chr ~= nil then
+        local esp = holder:FindFirstChild(v.Name) or Instance.new("Highlight")
+        esp.Name = v.Name
+        if uselocalplayer == false and esp.Name == game.Players.LocalPlayer.Name then
+            else
+        esp.Parent = holder
+        if filluseteamcolor then
+            esp.FillColor = v.TeamColor.Color
+        else
+            esp.FillColor = fillcolor 
+        end
+        if outlineuseteamcolor then
+            esp.OutlineColor = v.TeamColor.Color
+        else
+            esp.OutlineColor = outlinecolor    
+        end
+        esp.FillTransparency = filltrans
+        esp.OutlineTransparency = outlinetrans
+        esp.Adornee = chr
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        end
+        end
+    end
+end
+    else
+getgenv().enabled = false --Toggle on/off
+getgenv().filluseteamcolor = false --Toggle fill color using player team color on/off
+getgenv().outlineuseteamcolor = false --Toggle outline color using player team color on/off
+getgenv().fillcolor = Color3.new(2, 2, 1) --Change fill color, no need to edit if using team color
+getgenv().outlinecolor = Color3.new(1, 1, 1) --Change outline color, no need to edit if using team color
+getgenv().filltrans = 0.3 --Change fill transparency
+getgenv().outlinetrans = 0.2 --Change outline transparency
+-- If you try and claim my scirpt as yours we will have to kiss. 🌝
+local holder = game.CoreGui:FindFirstChild("ESPHolder") or Instance.new("Folder")
+if enabled == false then
+    holder:Destroy()
+end
+
+if holder.Name == "Folder" then
+    holder.Name = "ESPHolder"
+    holder.Parent = game.CoreGui
+end
+
+if uselocalplayer == false and holder:FindFirstChild(game.Players.LocalPlayer.Name) then
+    holder:FindFirstChild(game.Players.LocalPlayer.Name):Destroy()
+end
+
+if getgenv().enabled == true then 
+    getgenv().enabled = false
+    getgenv().enabled = true
+end
+while getgenv().enabled do
+    task.wait()
+    for _,v in pairs(game.Players:GetChildren()) do
+        local chr = v.Character
+        if chr ~= nil then
+        local esp = holder:FindFirstChild(v.Name) or Instance.new("Highlight")
+        esp.Name = v.Name
+        if uselocalplayer == false and esp.Name == game.Players.LocalPlayer.Name then
+            else
+        esp.Parent = holder
+        if filluseteamcolor then
+            esp.FillColor = v.TeamColor.Color
+        else
+            esp.FillColor = fillcolor 
+        end
+        if outlineuseteamcolor then
+            esp.OutlineColor = v.TeamColor.Color
+        else
+            esp.OutlineColor = outlinecolor    
+        end
+        esp.FillTransparency = filltrans
+        esp.OutlineTransparency = outlinetrans
+        esp.Adornee = chr
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        end
+        end
+    end
+end
+end
+
+
+end)
+
+
+
+Section:NewButton("Mobile Keyboard", "Mobile Players", function(state)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/advxzivhsjjdhxhsidifvsh/mobkeyboard/main/main.txt", true))()
+end)
+
+Section:NewButton("CFrame Speed (Y)", "Press Y To Toggle Off/On", function()
+  repeat
+    		wait()
+    	until game:IsLoaded()
+    	local L_134_ = game:service('Players')
+    	local L_135_ = L_134_.LocalPlayer
+    	repeat
+    		wait()
+    	until L_135_.Character
+    	local L_136_ = game:service('UserInputService')
+    	local L_137_ = game:service('RunService')
+    	getgenv().Multiplier = 0.08
+    	local L_138_ = true
+    	local L_139_
+    	L_136_.InputBegan:connect(function(L_140_arg0)
+    		if L_140_arg0.KeyCode == Enum.KeyCode.LeftBracket then
+    			Multiplier = Multiplier + 0.01
+    			print(Multiplier)
+    			wait(0.2)
+    			while L_136_:IsKeyDown(Enum.KeyCode.LeftBracket) do
+    				wait()
+    				Multiplier = Multiplier + 0.01
+    				print(Multiplier)
+    			end
+    		end
+    		if L_140_arg0.KeyCode == Enum.KeyCode.RightBracket then
+    			Multiplier = Multiplier - 0.01
+    			print(Multiplier)
+    			wait(0.2)
+    			while L_136_:IsKeyDown(Enum.KeyCode.RightBracket) do
+    				wait()
+    				Multiplier = Multiplier - 0.01
+    				print(Multiplier)
+    			end
+    		end
+    		if L_140_arg0.KeyCode == Enum.KeyCode.Y then
+    			L_138_ = not L_138_
+    			if L_138_ == true then
+    				repeat
+    					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + game.Players.LocalPlayer.Character.Humanoid.MoveDirection * Multiplier
+    					game:GetService("RunService").Stepped:wait()
+    				until L_138_ == false
+    			end
+    		end
+    	end)
+    	end)
+
+
+
+
+
+Section:NewButton("FPS Boost (No Lag)", "No Lag", function()
+     for _,v in pairs(workspace:GetDescendants()) do
+if v.ClassName == "Part"
+or v.ClassName == "SpawnLocation"
+or v.ClassName == "WedgePart"
+or v.ClassName == "Terrain"
+or v.ClassName == "MeshPart" then
+v.Material = "Plastic"
+end
+end
+    end)
+
+Section:NewButton("Max FOV", "Zoom Out", function()
+while true do
+game:GetService'Workspace'.Camera.FieldOfView = 120
+wait(0)
+end
+end)
+
+Section:NewToggle("Infinite Jump", "Infinite Jump", function(state)
+if state then
+_G.infinjump = true
+local Player = game:GetService("Players").LocalPlayer
+local Mouse = Player:GetMouse()
+Mouse.KeyDown:connect(function(k)
+if _G.infinjump then
+if k:byte() == 32 then
+Humanoid = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+Humanoid:ChangeState("Jumping")
+wait(0.1)
+Humanoid:ChangeState("Seated")
+end
+end
+end)
+local Player = game:GetService("Players").LocalPlayer
+local Mouse = Player:GetMouse()
+    else
+if _G.infinjump == true then
+_G.infinjump = false
+else
+_G.infinjump = true
+end
+end
+            end)
+
+Section:NewToggle("Noclip", "Noclip", function()
+ local Noclip = nil
+local Clip = nil
+
+function noclip()
+	Clip = false
+	local function Nocl()
+		if Clip == false and game.Players.LocalPlayer.Character ~= nil then
+			for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+				if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+					v.CanCollide = false
+				end
+			end
+		end
+		wait(0.21) -- basic optimization
+	end
+	Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+end
+
+function clip()
+	if Noclip then Noclip:Disconnect() end
+	Clip = true
+end
+
+noclip()
+end)
+
+
+
+
+
+CredSection:NewLabel("Made By Legend HandlesYT")
+
+
+CredSection:NewKeybind("Toggle UI", "Toggle The UI", Enum.KeyCode.L, function()
+	Library:ToggleUI()
+end)
+
+CredSection:NewButton("Mobile Keyboard", "Mobile Players", function(state)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/advxzivhsjjdhxhsidifvsh/mobkeyboard/main/main.txt", true))()
+end)
