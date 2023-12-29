@@ -56,77 +56,69 @@ end
 
 
 Section:NewButton("Tracer (T)", "Enable Player Hitbox", function()
+-- Put this script in a LocalScript (e.g., StarterPlayer > StarterPlayerScripts)
+
 local player = game.Players.LocalPlayer
-local camera = game.Workspace.CurrentCamera
-local runService = game:GetService("RunService")
-local userInputService = game:GetService("UserInputService")
+local character = player.Character
+local humanoid = character and character:WaitForChild("Humanoid")
 
-local lineColor = Color3.new(1, 1, 1) -- Color of the tracer lines
-local lineThickness = 2 -- Thickness of the tracer lines
-local maxDistance = 100 -- Maximum distance to draw the tracers
+local maxDistance = 1 -- Maximum distance to trigger behavior
+local rotationSpeed = 5 -- Speed of rotation
+local movementSpeed = 5 -- Speed of movement
 
-local toggleKey = Enum.KeyCode.T -- Change this to the desired key to toggle ESP
-local espEnabled = false
+-- Function to rotate the character around a target
+local function rotateAround(target)
+    local targetPosition = target.Position
+    local playerPosition = humanoid and humanoid.Parent and humanoid.Parent:WaitForChild("HumanoidRootPart").Position
 
--- Function to create a Line between two points
-local function createLine(startPos, endPos)
-    local tracer = Instance.new("Part")
-    tracer.Anchored = true
-    tracer.BrickColor = BrickColor.new(lineColor)
-    tracer.Size = Vector3.new(lineThickness, startPos:Distance(endPos), lineThickness)
-    tracer.CFrame = CFrame.new(startPos, endPos) * CFrame.new(0, 0, -tracer.Size.Y / 2)
-    tracer.Parent = game.Workspace.CurrentCamera
-    return tracer
+    if targetPosition and playerPosition then
+        local directionToTarget = (targetPosition - playerPosition).unit
+        local rotation = CFrame.new(Vector3.new(), directionToTarget)
+
+        humanoid.Parent:SetPrimaryPartCFrame(rotation * CFrame.new(0, 0, -maxDistance))
+    end
 end
 
--- Function to update the tracers
-local function updateTracers()
-    if not espEnabled then
-        for _, tracer in pairs(camera:GetChildren()) do
-            if tracer:IsA("Part") then
-                tracer:Destroy()
-            end
-        end
-        return
+-- Function to move the character behind a target
+local function moveToBehind(target)
+    local targetPosition = target.Position
+    local playerPosition = humanoid and humanoid.Parent and humanoid.Parent:WaitForChild("HumanoidRootPart").Position
+
+    if targetPosition and playerPosition then
+        local directionToTarget = (targetPosition - playerPosition).unit
+        local newPosition = targetPosition - directionToTarget * maxDistance
+
+        humanoid.Parent:SetPrimaryPartCFrame(CFrame.new(newPosition))
     end
+end
 
-    for _, playerInGame in pairs(game.Players:GetPlayers()) do
-        if playerInGame ~= player then
-            local character = playerInGame.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local startPos = player.Character:FindFirstChild("HumanoidRootPart").Position
-                local endPos = character:FindFirstChild("HumanoidRootPart").Position
+-- Function to check proximity to other players
+local function checkProximity()
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            local otherCharacter = otherPlayer.Character
+            if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
+                local distance = (character:WaitForChild("HumanoidRootPart").Position - otherCharacter:WaitForChild("HumanoidRootPart").Position).Magnitude
 
-                local distance = (startPos - endPos).Magnitude
                 if distance <= maxDistance then
-                    createLine(startPos, endPos)
+                    -- You can customize the behavior here
+                    -- For example, rotate around the player:
+                    rotateAround(otherCharacter:WaitForChild("HumanoidRootPart"))
+
+                    -- Or move behind the player:
+                    -- moveToBehind(otherCharacter:WaitForChild("HumanoidRootPart"))
                 end
             end
         end
     end
 end
 
--- Function to toggle ESP
-local function toggleESP()
-    espEnabled = not espEnabled
-    if not espEnabled then
-        for _, tracer in pairs(camera:GetChildren()) do
-            if tracer:IsA("Part") then
-                tracer:Destroy()
-            end
-        end
-    end
+-- Connect the checkProximity function to a loop
+while true do
+    wait(0.1) -- Adjust the wait time as needed
+    checkProximity()
 end
 
--- Connect the updateTracers function to the RenderStepped event
-runService.RenderStepped:Connect(updateTracers)
-
--- Connect the toggleESP function to the key press event
-userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if not gameProcessedEvent and input.KeyCode == toggleKey then
-        toggleESP()
-    end
-end)
 end)
 
 
