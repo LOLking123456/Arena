@@ -74,7 +74,7 @@ end
 
 
 Section:NewButton("Height + Speed (OP)", "Gives Height + Speed", function()
-  Float_Height = 8 -- Your float height | 5 is default
+  Float_Height = 7.5 -- Your float height | 5 is default
 
 local i=1
 G=game;
@@ -89,7 +89,7 @@ end
 end)
 
 
-Section:NewToggle("Auto Sprint", "Auto Sprint", function(Value)
+Section:NewButton("Auto Sprint", "Auto Sprint", function()
 local vim = game:GetService'VirtualInputManager'
 local x = game.Players.LocalPlayer.PlayerGui.HUD.MobileControls.SprintToggle
 
