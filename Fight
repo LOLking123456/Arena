@@ -17,91 +17,6 @@ local Section = Tab:NewSection("Main-Features")
 
 local CredSection = Tab1:NewSection("Settings")
 
-Section:NewButton("Enable Player Hitbox (Medium)", "Enable Player Hitbox", function()
--- Services
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local UserInputService = game:GetService("UserInputService")
-
--- Constants
-local camera = workspace.CurrentCamera
-local player = Players.LocalPlayer
-local playerCharacter = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = playerCharacter:WaitForChild("HumanoidRootPart")
-
--- UI Setup
-local gui = Instance.new("ScreenGui")
-gui.Name = "LockOnUI"
-gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
-local indicator = Instance.new("TextLabel")
-indicator.Name = "LockOnIndicator"
-indicator.Size = UDim2.new(0, 200, 0, 50)
-indicator.Position = UDim2.new(0.5, -100, 0, 20)
-indicator.BackgroundTransparency = 1
-indicator.TextStrokeTransparency = 0.5
-indicator.TextSize = 20
-indicator.Font = Enum.Font.SourceSansBold
-indicator.TextColor3 = Color3.new(1, 1, 1)
-indicator.BorderSizePixel = 2
-indicator.Parent = gui
-
--- Function to update the lock-on indicator
-local function updateIndicator(targetPosition, screenPosition, distance)
-    indicator.Text = string.format("Target Distance: %.2f studs", distance)
-end
-
--- Function to find the nearest player
-local function findNearestPlayer()
-    local closestPlayer = nil
-    local closestDistance = math.huge
-
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local character = otherPlayer.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local rootPart = character.HumanoidRootPart
-                local distance = (rootPart.Position - camera.CFrame.Position).Magnitude
-
-                if distance < closestDistance then
-                    closestPlayer = otherPlayer
-                    closestDistance = distance
-                end
-            end
-        end
-    end
-
-    return closestPlayer
-end
-
--- Function to handle player input
-local function handleInput()
-    UserInputService.InputChanged:Connect(function(input, processed)
-        if not processed and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local nearestPlayer = findNearestPlayer()
-
-            if nearestPlayer then
-                local targetPosition = nearestPlayer.Character:WaitForChild("HumanoidRootPart").Position
-                local screenPosition, onScreen = camera:WorldToViewportPoint(targetPosition)
-
-                if onScreen then
-                    local distance = (targetPosition - camera.CFrame.Position).Magnitude
-                    updateIndicator(targetPosition, screenPosition, distance)
-                else
-                    indicator.Text = "Target Out of View"
-                end
-            else
-                indicator.Text = "No Target Found"
-            end
-        end
-    end)
-end
-
--- Run the script
-handleInput()
-end)
 
 Section:NewToggle("Enable Player Hitbox (Medium)", "Enable Player Hitbox", function(Value)
 a = Value
@@ -137,6 +52,83 @@ end
 end)
 end
     end)
+
+
+
+Section:NewButton("Tracer (T)", "Enable Player Hitbox", function()
+local player = game.Players.LocalPlayer
+local camera = game.Workspace.CurrentCamera
+local runService = game:GetService("RunService")
+local userInputService = game:GetService("UserInputService")
+
+local lineColor = Color3.new(1, 1, 1) -- Color of the tracer lines
+local lineThickness = 2 -- Thickness of the tracer lines
+local maxDistance = 100 -- Maximum distance to draw the tracers
+
+local toggleKey = Enum.KeyCode.T -- Change this to the desired key to toggle ESP
+local espEnabled = false
+
+-- Function to create a Line between two points
+local function createLine(startPos, endPos)
+    local tracer = Instance.new("Part")
+    tracer.Anchored = true
+    tracer.BrickColor = BrickColor.new(lineColor)
+    tracer.Size = Vector3.new(lineThickness, startPos:Distance(endPos), lineThickness)
+    tracer.CFrame = CFrame.new(startPos, endPos) * CFrame.new(0, 0, -tracer.Size.Y / 2)
+    tracer.Parent = game.Workspace.CurrentCamera
+    return tracer
+end
+
+-- Function to update the tracers
+local function updateTracers()
+    if not espEnabled then
+        for _, tracer in pairs(camera:GetChildren()) do
+            if tracer:IsA("Part") then
+                tracer:Destroy()
+            end
+        end
+        return
+    end
+
+    for _, playerInGame in pairs(game.Players:GetPlayers()) do
+        if playerInGame ~= player then
+            local character = playerInGame.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local startPos = player.Character:FindFirstChild("HumanoidRootPart").Position
+                local endPos = character:FindFirstChild("HumanoidRootPart").Position
+
+                local distance = (startPos - endPos).Magnitude
+                if distance <= maxDistance then
+                    createLine(startPos, endPos)
+                end
+            end
+        end
+    end
+end
+
+-- Function to toggle ESP
+local function toggleESP()
+    espEnabled = not espEnabled
+    if not espEnabled then
+        for _, tracer in pairs(camera:GetChildren()) do
+            if tracer:IsA("Part") then
+                tracer:Destroy()
+            end
+        end
+    end
+end
+
+-- Connect the updateTracers function to the RenderStepped event
+runService.RenderStepped:Connect(updateTracers)
+
+-- Connect the toggleESP function to the key press event
+userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == toggleKey then
+        toggleESP()
+    end
+end)
+end)
+
 
 Section:NewToggle("Player ESP", "Player ESP", function(state)
 if state then
