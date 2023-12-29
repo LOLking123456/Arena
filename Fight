@@ -74,7 +74,7 @@ end
 
 
 Section:NewButton("Height + Speed (OP)", "Gives Height + Speed", function()
-  Float_Height = 7.5 -- Your float height | 5 is default
+  Float_Height = 6 -- Your float height | 5 is default
 
 local i=1
 G=game;
