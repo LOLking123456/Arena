@@ -18,6 +18,24 @@ local Section = Tab:NewSection("Main-Features")
 local CredSection = Tab1:NewSection("Settings")
 
 
+Section:NewToggle("Enable Player Hitbox (Small)", "Enable Player Hitbox", function(Value)
+a = Value
+        while a do task.wait(2)
+        pcall(function()
+for _, v in pairs(game.Workspace:GetDescendants()) do
+    if v.Name == "HumanoidRootPart" and v:IsA("Part") and v.Parent ~= game.Players.LocalPlayer.Character then
+        v.Size = Vector3.new(10,10,10)
+        v.Transparency = 0.8
+        v.Material = "Neon"
+        v.BrickColor = BrickColor.new("Really red")
+        v.CanCollide = false
+    end
+end
+end)
+end
+    end)
+
+
 Section:NewToggle("Enable Player Hitbox (Medium)", "Enable Player Hitbox", function(Value)
 a = Value
         while a do task.wait(2)
@@ -55,70 +73,28 @@ end
 
 
 
-Section:NewButton("Tracer (T)", "Enable Player Hitbox", function()
--- Put this script in a LocalScript (e.g., StarterPlayer > StarterPlayerScripts)
+Section:NewButton("Height + Speed (OP)", "Gives Height + Speed", function()
+  Float_Height = 8 -- Your float height | 5 is default
 
-local player = game.Players.LocalPlayer
-local character = player.Character
-local humanoid = character and character:WaitForChild("Humanoid")
-
-local maxDistance = 1 -- Maximum distance to trigger behavior
-local rotationSpeed = 5 -- Speed of rotation
-local movementSpeed = 5 -- Speed of movement
-
--- Function to rotate the character around a target
-local function rotateAround(target)
-    local targetPosition = target.Position
-    local playerPosition = humanoid and humanoid.Parent and humanoid.Parent:WaitForChild("HumanoidRootPart").Position
-
-    if targetPosition and playerPosition then
-        local directionToTarget = (targetPosition - playerPosition).unit
-        local rotation = CFrame.new(Vector3.new(), directionToTarget)
-
-        humanoid.Parent:SetPrimaryPartCFrame(rotation * CFrame.new(0, 0, -maxDistance))
-    end
+local i=1
+G=game;
+_=wait;
+p=G:GetService("Players").LocalPlayer.Character
+p:FindFirstChild("Humanoid").HipHeight = Float_Height
+for i=1,i do
+repeat p:FindFirstChild("Humanoid").HipHeight=Float_Height-n _(t)p:FindFirstChild("Humanoid").HipHeight=Float_Height+n _(t) until
+p:FindFirstChild("Humanoid").Health == 0
 end
 
--- Function to move the character behind a target
-local function moveToBehind(target)
-    local targetPosition = target.Position
-    local playerPosition = humanoid and humanoid.Parent and humanoid.Parent:WaitForChild("HumanoidRootPart").Position
+end)
 
-    if targetPosition and playerPosition then
-        local directionToTarget = (targetPosition - playerPosition).unit
-        local newPosition = targetPosition - directionToTarget * maxDistance
 
-        humanoid.Parent:SetPrimaryPartCFrame(CFrame.new(newPosition))
-    end
-end
+Section:NewToggle("Auto Sprint", "Auto Sprint", function(Value)
+local vim = game:GetService'VirtualInputManager'
+local x = game.Players.LocalPlayer.PlayerGui.HUD.MobileControls.SprintToggle
 
--- Function to check proximity to other players
-local function checkProximity()
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local otherCharacter = otherPlayer.Character
-            if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
-                local distance = (character:WaitForChild("HumanoidRootPart").Position - otherCharacter:WaitForChild("HumanoidRootPart").Position).Magnitude
-
-                if distance <= maxDistance then
-                    -- You can customize the behavior here
-                    -- For example, rotate around the player:
-                    rotateAround(otherCharacter:WaitForChild("HumanoidRootPart"))
-
-                    -- Or move behind the player:
-                    -- moveToBehind(otherCharacter:WaitForChild("HumanoidRootPart"))
-                end
-            end
-        end
-    end
-end
-
--- Connect the checkProximity function to a loop
-while true do
-    wait(0.1) -- Adjust the wait time as needed
-    checkProximity()
-end
-
+vim:SendMouseButtonEvent(x.AbsolutePosition.X+x.AbsoluteSize.X/2,x.AbsolutePosition.Y+50,0,true,x,1)
+vim:SendMouseButtonEvent(x.AbsolutePosition.X+x.AbsoluteSize.X/2,x.AbsolutePosition.Y+50,0,false,x,1)
 end)
 
 
@@ -244,55 +220,14 @@ Section:NewButton("Mobile Keyboard", "Mobile Players", function(state)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/advxzivhsjjdhxhsidifvsh/mobkeyboard/main/main.txt", true))()
 end)
 
-Section:NewButton("CFrame Speed (Y)", "Press Y To Toggle Off/On", function()
-  repeat
-    		wait()
-    	until game:IsLoaded()
-    	local L_134_ = game:service('Players')
-    	local L_135_ = L_134_.LocalPlayer
-    	repeat
-    		wait()
-    	until L_135_.Character
-    	local L_136_ = game:service('UserInputService')
-    	local L_137_ = game:service('RunService')
-    	getgenv().Multiplier = 0.08
-    	local L_138_ = true
-    	local L_139_
-    	L_136_.InputBegan:connect(function(L_140_arg0)
-    		if L_140_arg0.KeyCode == Enum.KeyCode.LeftBracket then
-    			Multiplier = Multiplier + 0.01
-    			print(Multiplier)
-    			wait(0.2)
-    			while L_136_:IsKeyDown(Enum.KeyCode.LeftBracket) do
-    				wait()
-    				Multiplier = Multiplier + 0.01
-    				print(Multiplier)
-    			end
-    		end
-    		if L_140_arg0.KeyCode == Enum.KeyCode.RightBracket then
-    			Multiplier = Multiplier - 0.01
-    			print(Multiplier)
-    			wait(0.2)
-    			while L_136_:IsKeyDown(Enum.KeyCode.RightBracket) do
-    				wait()
-    				Multiplier = Multiplier - 0.01
-    				print(Multiplier)
-    			end
-    		end
-    		if L_140_arg0.KeyCode == Enum.KeyCode.Y then
-    			L_138_ = not L_138_
-    			if L_138_ == true then
-    				repeat
-    					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + game.Players.LocalPlayer.Character.Humanoid.MoveDirection * Multiplier
-    					game:GetService("RunService").Stepped:wait()
-    				until L_138_ == false
-    			end
-    		end
-    	end)
-    	end)
 
 
-
+Section:NewButton("Max FOV", "Zoom Out", function()
+while true do
+game:GetService'Workspace'.Camera.FieldOfView = 120
+wait(0)
+end
+end)
 
 
 Section:NewButton("FPS Boost (No Lag)", "No Lag", function()
@@ -306,13 +241,6 @@ v.Material = "Plastic"
 end
 end
     end)
-
-Section:NewButton("Max FOV", "Zoom Out", function()
-while true do
-game:GetService'Workspace'.Camera.FieldOfView = 120
-wait(0)
-end
-end)
 
 Section:NewToggle("Infinite Jump", "Infinite Jump", function(state)
 if state then
